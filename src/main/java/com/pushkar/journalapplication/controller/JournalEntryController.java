@@ -1,18 +1,23 @@
 package com.pushkar.journalapplication.controller;
 
 import com.pushkar.journalapplication.entity.JournalEntry;
+import com.pushkar.journalapplication.service.JournalEntryService;
+import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+
 import java.util.List;
-import java.util.Map;
+
 
 @RestController
 @RequestMapping("/journal")
 public class JournalEntryController {
 
-    private Map<Long, JournalEntry> journalentries = new HashMap<>();
+    @Autowired
+    JournalEntryService journalEntryService;
+
 
     @GetMapping("/check")
     public String check(){
@@ -21,30 +26,34 @@ public class JournalEntryController {
 
     @GetMapping
     public List<JournalEntry> getall(){
-        return new ArrayList<>(journalentries.values());
+        return journalEntryService.getAll();
     }
 
     @PostMapping
-    public JournalEntry createEntry(@RequestBody JournalEntry journalEntry){
-        return journalentries.put(journalEntry.getId(),journalEntry);
+    public boolean createEntry(@RequestBody JournalEntry journalEntry){
+        journalEntryService.saveEntry(journalEntry);
+        return true;
     }
 
 
     @GetMapping("id/{myid}")
-    public JournalEntry getbyid(@PathVariable Long myid){
-        return journalentries.get(myid);
+    public JournalEntry getbyid(@PathVariable ObjectId myid){
+
+        return journalEntryService.getById(myid);
     }
 
 
     @DeleteMapping("id/{myid}")
-    public JournalEntry deletebyid(@PathVariable Long myid){
-        return journalentries.remove(myid);
+    public boolean deletebyid(@PathVariable ObjectId myid){
+        journalEntryService.deleteById(myid);
+        return true;
 
     }
 
     @PostMapping("id/{myid}")
-    public JournalEntry updatejournal(@PathVariable Long myid, @RequestBody JournalEntry journalEntry){
-        return journalentries.put(myid,journalEntry);
+    public JournalEntry updatejournal(@PathVariable ObjectId myid, @RequestBody JournalEntry journalEntry){
+        journalEntryService.updateEntry(myid,journalEntry);
+        return journalEntry;
     }
 
 
