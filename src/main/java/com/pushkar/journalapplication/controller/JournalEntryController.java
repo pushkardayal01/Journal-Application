@@ -4,6 +4,8 @@ import com.pushkar.journalapplication.entity.JournalEntry;
 import com.pushkar.journalapplication.service.JournalEntryService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -30,30 +32,54 @@ public class JournalEntryController {
     }
 
     @PostMapping
-    public boolean createEntry(@RequestBody JournalEntry journalEntry){
-        journalEntryService.saveEntry(journalEntry);
-        return true;
+    public ResponseEntity<JournalEntry> createEntry(@RequestBody JournalEntry journalEntry){
+        try{
+            journalEntryService.saveEntry(journalEntry);
+            return new ResponseEntity<>(journalEntry, HttpStatus.CREATED);
+        }
+        catch(Exception e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+
     }
 
 
     @GetMapping("id/{myid}")
-    public JournalEntry getbyid(@PathVariable ObjectId myid){
-
-        return journalEntryService.getById(myid);
+    public ResponseEntity<JournalEntry> getbyid(@PathVariable ObjectId myid){
+        try{
+            JournalEntry entry =journalEntryService.getById(myid);
+            return new ResponseEntity<>(entry,HttpStatus.OK);
+        }
+        catch(Exception e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
 
     @DeleteMapping("id/{myid}")
-    public boolean deletebyid(@PathVariable ObjectId myid){
-        journalEntryService.deleteById(myid);
-        return true;
+    public ResponseEntity<Boolean> deletebyid(@PathVariable ObjectId myid){
+        try{
+            journalEntryService.deleteById(myid);
+            return new ResponseEntity<>(true,HttpStatus.OK);
+        }
+        catch(Exception e){
+            return new ResponseEntity<>(false,HttpStatus.BAD_REQUEST);
+        }
 
     }
 
     @PostMapping("id/{myid}")
-    public JournalEntry updatejournal(@PathVariable ObjectId myid, @RequestBody JournalEntry journalEntry){
-        journalEntryService.updateEntry(myid,journalEntry);
-        return journalEntry;
+    public ResponseEntity<JournalEntry> updatejournal(@PathVariable ObjectId myid, @RequestBody JournalEntry journalEntry){
+        try{
+            journalEntryService.updateEntry(myid,journalEntry);
+            return new ResponseEntity<>(journalEntry,HttpStatus.OK);
+        }
+        catch(Exception e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+
     }
 
 
