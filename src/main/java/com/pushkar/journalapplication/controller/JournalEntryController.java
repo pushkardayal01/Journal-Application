@@ -2,6 +2,7 @@ package com.pushkar.journalapplication.controller;
 
 import com.pushkar.journalapplication.entity.JournalEntry;
 import com.pushkar.journalapplication.service.JournalEntryService;
+import com.pushkar.journalapplication.service.UserService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,10 @@ import java.util.List;
 public class JournalEntryController {
 
     @Autowired
-    JournalEntryService journalEntryService;
+    private JournalEntryService journalEntryService;
+
+    @Autowired
+    private UserService userService;
 
 
     @GetMapping("/check")
@@ -26,14 +30,16 @@ public class JournalEntryController {
         return "hello";
     }
 
-    @GetMapping
-    public List<JournalEntry> getall(){
-        return journalEntryService.getAll();
+    @GetMapping("/{username}")
+    public List<JournalEntry> getall(@PathVariable String username){
+        List<JournalEntry> journalEntries = userService.getAllJournal(username);
+        return journalEntries;
     }
 
-    @PostMapping
-    public ResponseEntity<JournalEntry> createEntry(@RequestBody JournalEntry journalEntry){
+    @PostMapping("/{username}")
+    public ResponseEntity<JournalEntry> createEntry(@RequestBody JournalEntry journalEntry, @PathVariable String username){
         try{
+            userService.addjournalEntry(username,journalEntry);
             journalEntryService.saveEntry(journalEntry);
             return new ResponseEntity<>(journalEntry, HttpStatus.CREATED);
         }
