@@ -7,6 +7,7 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -37,14 +38,15 @@ public class JournalEntryController {
     }
 
     @PostMapping("/{username}")
-    public ResponseEntity<JournalEntry> createEntry(@RequestBody JournalEntry journalEntry, @PathVariable String username){
+    @Transactional
+    public ResponseEntity<JournalEntry> createEntry(@RequestBody JournalEntry journalEntry, @PathVariable String username) throws Exception {
         try{
-            userService.addjournalEntry(username,journalEntry);
-            journalEntryService.saveEntry(journalEntry);
+            JournalEntry entry= journalEntryService.saveEntry(journalEntry);
+            userService.addjournalEntry(username,entry);
             return new ResponseEntity<>(journalEntry, HttpStatus.CREATED);
         }
         catch(Exception e){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new Exception("Bad Request");
         }
 
 
@@ -63,26 +65,30 @@ public class JournalEntryController {
     }
 
 
-    @DeleteMapping("id/{myid}")
-    public ResponseEntity<Boolean> deletebyid(@PathVariable ObjectId myid){
+    @DeleteMapping("id/{username}/{myid}")
+    @Transactional
+    public ResponseEntity<Boolean> deletebyid(@PathVariable ObjectId myid, @PathVariable String username) throws Exception {
         try{
             journalEntryService.deleteById(myid);
+            userService.deleteJournalEntry(username,myid);
             return new ResponseEntity<>(true,HttpStatus.OK);
         }
         catch(Exception e){
-            return new ResponseEntity<>(false,HttpStatus.BAD_REQUEST);
+            throw  new Exception("Somethings went wrong");
         }
 
     }
 
-    @PostMapping("id/{myid}")
-    public ResponseEntity<JournalEntry> updatejournal(@PathVariable ObjectId myid, @RequestBody JournalEntry journalEntry){
+    @PostMapping("id/{username}/{myid}")
+    @Transactional
+    public ResponseEntity<JournalEntry> updatejournal(@PathVariable ObjectId myid, @RequestBody JournalEntry journalEntry,@PathVariable String username) throws Exception {
         try{
-            journalEntryService.updateEntry(myid,journalEntry);
+            JournalEntry entry = journalEntryService.updateEntry(myid,journalEntry);
+            userService.updateJournalEntry(username,entry);
             return new ResponseEntity<>(journalEntry,HttpStatus.OK);
         }
         catch(Exception e){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new Exception("Bad Request");
         }
 
 

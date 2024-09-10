@@ -84,10 +84,15 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void deleteJournalEntry(String username,JournalEntry entry){
+    public void deleteJournalEntry(String username,ObjectId myid){
         User user = userRepository.findByUsername(username);
         List<JournalEntry> journalEntries = user.getJournalEntries();
-        journalEntries.remove(entry);
+        for(int i=0;i<journalEntries.size();i++){
+            if(journalEntries.get(i).getId()==myid){
+                journalEntries.remove(journalEntries.get(i));
+            }
+        }
+
         userRepository.save(user);
     }
 

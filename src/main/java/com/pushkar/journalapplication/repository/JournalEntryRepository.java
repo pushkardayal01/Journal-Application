@@ -9,3 +9,5 @@ import java.util.List;
 public interface JournalEntryRepository extends MongoRepository<JournalEntry, ObjectId> {
 
 }
+
+

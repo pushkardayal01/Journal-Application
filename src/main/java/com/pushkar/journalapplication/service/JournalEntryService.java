@@ -18,9 +18,10 @@ public class JournalEntryService {
     private JournalEntryRepository journalEntryRepository;
 
 
-    public void saveEntry(JournalEntry entry){
+    public JournalEntry saveEntry(JournalEntry entry){
         entry.setDate(LocalDateTime.now());
-        journalEntryRepository.save(entry);
+        JournalEntry journalentry = journalEntryRepository.save(entry);
+        return journalentry;
     }
 
 
@@ -43,10 +44,11 @@ public class JournalEntryService {
 
     }
 
-    public void updateEntry(ObjectId id, JournalEntry entry){
+    public JournalEntry updateEntry(ObjectId id, JournalEntry entry){
         Optional<JournalEntry> journalentry = journalEntryRepository.findById(id);
         if(journalentry.isEmpty()){
-            journalEntryRepository.save(entry);
+            JournalEntry jentry =journalEntryRepository.save(entry);
+            return jentry;
         }
         if(entry.getTitle()!=null){
             journalentry.get().setTitle(entry.getTitle());
@@ -54,7 +56,8 @@ public class JournalEntryService {
         if(entry.getContent()!=null){
             journalentry.get().setContent(entry.getContent());
         }
-        journalEntryRepository.save(journalentry.get());
+        JournalEntry jentry = journalEntryRepository.save(journalentry.get());
+        return jentry;
 
 
     }
