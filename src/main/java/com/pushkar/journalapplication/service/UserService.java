@@ -6,8 +6,11 @@ import com.pushkar.journalapplication.entity.User;
 import com.pushkar.journalapplication.repository.UserRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,8 +20,15 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     public void createuser(User user) throws Exception{
         try{
+            if(user.getRoles().size()==0){
+                List<String> roles = user.getRoles();
+                roles.add("USER");
+            }
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
             userRepository.save(user);
         }
         catch(Exception e){
@@ -62,8 +72,20 @@ public class UserService {
 
         userRepository.save(olduser);
 
+    }
 
-
+    public void updateUserRole(User user,String[] roles) throws  Exception{
+        Optional<User> entry = Optional.ofNullable(userRepository.findByUsername(user.getUsername()));
+        if(entry.isEmpty()){
+            throw new Exception("Bad Request");
+        }
+        user = entry.get();
+        List<String> listroles = new ArrayList<>();
+        for(int i=0;i<roles.length;i++){
+            listroles.add(roles[i]);
+        }
+        user.setRoles(listroles);
+        userRepository.save(user);
     }
 
     public User getByUserName(String username) {
